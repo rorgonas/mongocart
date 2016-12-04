@@ -53,19 +53,34 @@ function ItemDAO(database) {
         */
 
         var categories = [];
-        var category = {
-            _id: "All",
-            num: 9999
-        };
+        var query = [
+            { $group: {
+                '_id': "$category",
+                'num': { $sum: 1}
+            }},
+            { $project: { '_id':1, 'num':1 } },
+            { $sort:{ '_id':1 } }
+        ];
 
-        categories.push(category)
+        var cursor = this.db.collection('item').aggregate(query);
+        var numCategories = 0;
 
-        // TODO-lab1A Replace all code above (in this method).
+        cursor.forEach(
+            function(category) {
+                numCategories += category.num;
+                console.log('In ' + category._id + "\n\tfounded " + category.num);
+                categories.push(category);
+            },
+            function(err) {
+                assert.equal(err, null);
 
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the categories array to the
-        // callback.
-        callback(categories);
+                categories.unshift( {
+                        _id: "All",
+                        num: numCategories
+                    });
+                callback(categories);
+            }
+        );
     }
 
 
