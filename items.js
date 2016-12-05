@@ -256,14 +256,12 @@ function ItemDAO(database) {
          *
          */
 
-        var item = this.createDummyItem();
+        var query = { '_id': itemId };
+        this.db.collection('item').findOne(query, function(err, item) {
+            if (err) throw err;
 
-        // TODO-lab3 Replace all code above (in this method).
-
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the matching item
-        // to the callback.
-        callback(item);
+            callback(item);
+        });
     }
 
 
