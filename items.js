@@ -187,27 +187,36 @@ function ItemDAO(database) {
          * this method, create a SINGLE text index on title, slogan, and
          * description. You should simply do this in the mongo shell.
          *
+         * db.item.createIndex({
+                'title':'text',
+                'slogan':'text',
+                'description':'text'
+            })
+         *
          */
 
-        var item = this.createDummyItem();
         var items = [];
-        for (var i=0; i<5; i++) {
-            items.push(item);
-        }
+        var query =  { $text: { $search: query }};
+        var cursor = this.db.collection('item').find(query);
 
-        // TODO-lab2A Replace all code above (in this method).
+        cursor.sort({ '_id':1 });
+        cursor.skip(itemsPerPage * page);
+        cursor.limit(itemsPerPage);
 
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the items for the selected page
-        // of search results to the callback.
-        callback(items);
+        cursor.forEach(
+            function(item) {
+                items.push(item);
+            },
+            function(err) {
+                assert.equal(err, null);
+                callback(items);
+            }
+        );
     }
 
 
     this.getNumSearchItems = function(query, callback) {
         "use strict";
-
-        var numItems = 0;
 
         /*
         * TODO-lab2B
@@ -222,7 +231,15 @@ function ItemDAO(database) {
         * simply do this in the mongo shell.
         */
 
-        callback(numItems);
+        var numItems = [];
+        var query =  { $text: { $search: query }};
+        this.db.collection('item').find(query).toArray(function(err, items) {
+            assert.equal(err, null);
+            assert.notEqual(items.length, 0);
+
+            numItems = items.length;
+            callback(numItems);
+        });
     }
 
 
