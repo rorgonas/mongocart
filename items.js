@@ -110,7 +110,7 @@ function ItemDAO(database) {
          */
 
         var pageItems = [];
-        var query = queryDocument({ "category": category });
+        var query =  this.queryDocument({ "category": category });
         var cursor = this.db.collection('item').find(query);
 
         cursor.sort({ '_id':1 });
@@ -119,7 +119,6 @@ function ItemDAO(database) {
 
         cursor.forEach(
             function(item) {
-                console.log('In ' + item._id + "\n\tfounded " + item.num);
                 pageItems.push(item);
             },
             function(err) {
@@ -128,25 +127,14 @@ function ItemDAO(database) {
             }
         );
 
-        function queryDocument(options) {
-
-            console.log(options);
-
-
-            if ("All" === options.category) {
-                return {};
-            }
-
-            return options;
-
-        }
     }
 
 
     this.getNumItems = function(category, callback) {
         "use strict";
 
-        var numItems = 0;
+        var self = this;
+        var numItems;
 
         /*
          * TODO-lab1C:
@@ -163,9 +151,14 @@ function ItemDAO(database) {
          *
          */
 
-         // TODO Include the following line in the appropriate
-         // place within your code to pass the count to the callback.
-        callback(numItems);
+        var query =  this.queryDocument({ "category": category });
+        this.db.collection('item').find(query).toArray(function(err, items) {
+            assert.equal(err, null);
+            assert.notEqual(items.length, 0);
+
+            numItems = items.length;
+            callback(numItems);
+        });
     }
 
 
@@ -319,6 +312,18 @@ function ItemDAO(database) {
         };
 
         return item;
+    }
+
+    this.queryDocument = function(options) {
+
+        console.log(options);
+
+
+        if ("All" === options.category) {
+            return {};
+        }
+
+        return options;
     }
 }
 
