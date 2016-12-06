@@ -290,26 +290,34 @@ function ItemDAO(database) {
          * array value for the key "reviews". Each review has the fields:
          * "name", "comment", "stars", and "date".
          *
+         *
+         *     db.item.update(
+                    { '_id': { $eq:1 }},
+                    { $push : {
+                        'reviews': {
+                            name: 'moo',
+                            comment: 'comment',
+                            stars: 2,
+                            date: Date.now()
+                    }
+                }})
+
+
          */
 
-        var reviewDoc = {
+        var reviewDoc = { $push: { 'reviews': {
             name: name,
             comment: comment,
             stars: stars,
             date: Date.now()
-        }
+        } }};
 
-        // TODO replace the following two lines with your code that will
-        // update the document with a new review.
-        var doc = this.createDummyItem();
-        doc.reviews = [reviewDoc];
-
-        // TODO Include the following line in the appropriate
-        // place within your code to pass the updated doc to the
-        // callback.
-        callback(doc);
+        // We have an item, let's add a new review
+        this.db.collection('item').update({ '_id': itemId}, reviewDoc, function(err, doc, full) {
+            if (err) throw err;
+            callback(doc);
+        });
     }
-
 
     this.createDummyItem = function() {
         "use strict";
