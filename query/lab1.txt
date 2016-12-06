@@ -1,0 +1,15 @@
+db.item.createIndex({ 
+'title':'text',
+'slogan':'text',
+'description':'text'
+})
+
+    db.item.update({ '_id': { $eq:1 }},
+        { $set : {
+            'reviews': [{
+                name: 'boo',
+                comment: 'comment',
+                stars: 2,
+                date: Date.now()
+            }]
+        }})
